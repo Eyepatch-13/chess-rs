@@ -40,7 +40,7 @@ impl Piece {
 
 impl Movement for Piece {
     fn moves(&self) {
-        todo!();
+        todo!()
     }
 }
 
@@ -88,7 +88,7 @@ impl EventHandler for Board {
 
         for i in 0..GRID_SIZE.0 as usize{
             for j in 0..GRID_SIZE.1 as usize{
-                let color = if (i+j)%2 == 0 {Color::YELLOW} else {Color::CYAN};
+                let color = if (i+j)%2 == 0 {Color::WHITE} else {Color::from_rgb(128, 128, 128)};
                 let rect = Mesh::new_rectangle(ctx,
                                                graphics::DrawMode::fill(),
                                                Rect::new(
