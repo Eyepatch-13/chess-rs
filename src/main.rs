@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use ggez::{ContextBuilder,
     conf::WindowMode,
     GameResult,
@@ -5,126 +7,27 @@ use ggez::{ContextBuilder,
     graphics::{self, Color, Rect, Mesh, DrawParam, Image},
     glam::vec2};
 
+use chess_rs::piece::*;
+use chess_rs::board::*;
+
 const CELL_SIZE: (f32, f32) = (120.0, 120.0);
 const GRID_SIZE: (f32, f32) = (8.0, 8.0);
 const WINDOW_SIZE: (f32, f32) = (CELL_SIZE.0 * GRID_SIZE.0, CELL_SIZE.1 * GRID_SIZE.1);
 
-trait Movement {
-    fn moves(&self);
-}
-
-#[derive(Clone, Debug)]
-enum PieceType {
-    King {
-        in_check: bool,
-        has_moved: bool,
-        is_checkmated: bool,
-    }, Queen, Bishop, Knight
-    , Rook {
-        has_moved: bool,
-    }
-    , Pawn {
-        has_moved: bool,
-    },
-}
-
-impl PieceType {
-    fn new(piece: &str) -> Self {
-        match piece {
-            "King" => {
-                return PieceType::King {
-                    is_checkmated: false,
-                    in_check: false,
-                    has_moved: false,
-                };
-            },
-            "Queen" => {
-                return PieceType::Queen;
-            },
-            "Bishop" => {
-                return PieceType::Bishop;
-            },
-            "Knight" => {
-                return PieceType::Knight;
-            },
-            "Rook" => {
-                return PieceType::Rook {
-                    has_moved: false,
-                };
-            },
-            "Pawn" => {
-                return PieceType::Pawn {
-                    has_moved: false
-                };
-            },
-            _ => {
-                panic!("Not a Piece Type or Incorrect Spelling \" Eg- Pawn and not pawn\"");
-            }
-        }
-    }
-}
-
-#[derive(Clone, Debug)]
-enum PieceColor {
-    White, Black,
-}
-
-#[derive(Clone, Debug)]
-struct Piece {
-    piece_type: PieceType,
-    piece_color: PieceColor,
-}
-
-impl Piece {
-    fn new(piece_type: PieceType, piece_color: PieceColor) -> Self {
-        Piece {
-            piece_type,
-            piece_color,
-        }
-    }
-}
-
-impl Movement for Piece {
-    fn moves(&self) {
-        todo!();
-    }
-}
-
 #[derive(Debug)]
-struct Board {
-    grid: Vec<Vec<Option<Piece>>>,
+struct State {
+    board: Board,
 }
 
-impl Board {
+impl State {
     fn new() -> Self {
-        let wpawn: Vec<Option<Piece>> = vec![Some(Piece::new(PieceType::new("Pawn"), PieceColor::White)); 8];
-        let bpawn: Vec<Option<Piece>> = vec![Some(Piece::new(PieceType::new("Pawn"), PieceColor::Black)); 8];
-        let blank: Vec<Option<Piece>> = vec![None; 8];
-        let mut wpiece: Vec<Option<Piece>> = vec![None; 8];
-        let mut bpiece = wpiece.clone();
-        wpiece[0] = Some(Piece::new(PieceType::new("Rook"), PieceColor::White));
-        wpiece[1] = Some(Piece::new(PieceType::new("Knight"), PieceColor::White));
-        wpiece[2] = Some(Piece::new(PieceType::new("Bishop"), PieceColor::White));
-        wpiece[3] = Some(Piece::new(PieceType::new("Queen"), PieceColor::White));
-        wpiece[4] = Some(Piece::new(PieceType::new("King"), PieceColor::White));
-        wpiece[5] = Some(Piece::new(PieceType::new("Bishop"), PieceColor::White));
-        wpiece[6] = Some(Piece::new(PieceType::new("Knight"), PieceColor::White));
-        wpiece[7] = Some(Piece::new(PieceType::new("Rook"), PieceColor::White));
-        bpiece[0] = Some(Piece::new(PieceType::new("Rook"), PieceColor::Black));
-        bpiece[1] = Some(Piece::new(PieceType::new("Knight"), PieceColor::Black));
-        bpiece[2] = Some(Piece::new(PieceType::new("Bishop"), PieceColor::Black));
-        bpiece[3] = Some(Piece::new(PieceType::new("Queen"), PieceColor::Black));
-        bpiece[4] = Some(Piece::new(PieceType::new("King"), PieceColor::Black));
-        bpiece[5] = Some(Piece::new(PieceType::new("Bishop"), PieceColor::Black));
-        bpiece[6] = Some(Piece::new(PieceType::new("Knight"), PieceColor::Black));
-        bpiece[7] = Some(Piece::new(PieceType::new("Rook"), PieceColor::Black));
-        Board {
-            grid: [bpiece, bpawn, blank.clone(), blank.clone(), blank.clone(), blank.clone(), wpawn, wpiece].to_vec(),
+        State {
+            board: Board::new(),
         }
     }
 }
 
-impl EventHandler for Board {
+impl EventHandler for State {
     fn update(&mut self, _ctx: &mut ggez::Context) -> Result<(), ggez::GameError> {
         Ok(())
     }
@@ -145,7 +48,7 @@ impl EventHandler for Board {
                                                    ), color)?;
                 canvas.draw(&rect, DrawParam::default());
 
-                let path = match &self.grid[j][i] {
+                let path = match &self.board.grid[j][i] {
                     Some(piece) => {
                         match (&piece.piece_type, &piece.piece_color) {
                             (PieceType::King {is_checkmated, in_check, has_moved}, PieceColor::White) => {"/white-king.png"},
@@ -175,7 +78,7 @@ impl EventHandler for Board {
 }
 
 fn main() -> GameResult {
-    let board = Board::new();
+    let board = State::new();
     let (ctx, event_loop) = ContextBuilder::new("chess-rs", "Eyepatch")
         .window_mode(WindowMode::default().dimensions(WINDOW_SIZE.0, WINDOW_SIZE.1))
         .build()?;
