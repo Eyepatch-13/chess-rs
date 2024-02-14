@@ -37,7 +37,7 @@ impl EventHandler for State {
 
         for i in 0..GRID_SIZE.0 as usize{
             for j in 0..GRID_SIZE.1 as usize{
-                let color = if (i+j)%2 == 0 {Color::WHITE} else {Color::from_rgb(128, 128, 128)};
+                let color = if (i+j)%2 == 0 {Color::from_rgb(238, 220, 151)} else {Color::from_rgb(150, 77, 34)};
                 let rect = Mesh::new_rectangle(ctx,
                                                graphics::DrawMode::fill(),
                                                Rect::new(
